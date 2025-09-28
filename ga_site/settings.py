@@ -5,22 +5,24 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ====== أساسي ======
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-change-me-please")
-DEBUG = os.getenv("DEBUG", "True") == "True"
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
-# يمكن ضبطها من المتغيرات، والقيمة الافتراضية تشمل Render دومينك
+# اسم/أسماء الهوست المسموح بها
 ALLOWED_HOSTS = os.getenv(
     "ALLOWED_HOSTS",
-    "localhost,127.0.0.1,aya-188444.onrender.com"
+    "localhost,127.0.0.1,.onrender.com"
 ).split(",")
 
-# Django 4+ يتطلب https في القيم
+# يجب أن تكون كاملة مع البروتوكول
 CSRF_TRUSTED_ORIGINS = os.getenv(
     "CSRF_TRUSTED_ORIGINS",
-    "https://aya-188444.onrender.com,https://*.onrender.com"
+    "https://*.onrender.com"
 ).split(",")
 
 # ====== تطبيقات ======
 INSTALLED_APPS = [
+    # تعطيل static الداخلي أثناء التطوير لصالح WhiteNoise (أضِف قبل staticfiles)
+    "whitenoise.runserver_nostatic",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -46,6 +48,7 @@ MIDDLEWARE = [
 # خلف Proxy مثل Render
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = True
+SECURE_SSL_REDIRECT = not DEBUG  # إعادة التوجيه إلى HTTPS على الإنتاج
 
 ROOT_URLCONF = "ga_site.urls"
 
@@ -69,18 +72,11 @@ WSGI_APPLICATION = "ga_site.wsgi.application"
 ASGI_APPLICATION = "ga_site.asgi.application"
 
 # ====== قاعدة البيانات ======
-# استخدم SQLite افتراضيًا. (يمكنك لاحقًا تبديلها لـ Postgres عبر متغيرات البيئة)
+# افتراضياً SQLite (على Render غير مُستدامة إلا إذا فعّلت disk أو استخدمت Postgres)
 DATABASES = {
     "default": {
         "ENGINE": os.getenv("DB_ENGINE", "django.db.backends.sqlite3"),
         "NAME": os.getenv("DB_NAME", BASE_DIR / "db.sqlite3"),
-        # لإعداد Postgres مثلاً عيّن:
-        # DB_ENGINE=django.db.backends.postgresql
-        # DB_NAME=...
-        # DB_USER=...
-        # DB_PASSWORD=...
-        # DB_HOST=...
-        # DB_PORT=5432
         "USER": os.getenv("DB_USER", ""),
         "PASSWORD": os.getenv("DB_PASSWORD", ""),
         "HOST": os.getenv("DB_HOST", ""),
@@ -104,25 +100,27 @@ USE_TZ = True
 
 # ====== Static / Media ======
 STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"  # مهم للنشر
+STATIC_ROOT = BASE_DIR / "staticfiles"  # مهم للنشر على Render
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+# لو عندك مجلد /static في المشروع (اختياري)
+if (BASE_DIR / "static").exists():
+    STATICFILES_DIRS = [BASE_DIR / "static"]
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# ====== أمان الكوكيز (مهم للـ CSRF خاصة لو Cross-Site) ======
+# ====== أمان الكوكيز (CSRF/Cookies) ======
 if DEBUG:
     CSRF_COOKIE_SECURE = False
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SAMESITE = "Lax"
     SESSION_COOKIE_SAMESITE = "Lax"
 else:
-    # Production على Render عادة HTTPS
     CSRF_COOKIE_SECURE = True
     SESSION_COOKIE_SECURE = True
-    # لو عندك Frontend على دومين مختلف وتحتاج إرسال الكوكي عبر المواقع:
-    # عيّن القيمتين أدناه إلى "None"
+    # إن كان لديك Frontend على دومين مختلف وتحتاج Cross-Site Cookies اجعلها "None"
     CSRF_COOKIE_SAMESITE = os.getenv("CSRF_COOKIE_SAMESITE", "None")
     SESSION_COOKIE_SAMESITE = os.getenv("SESSION_COOKIE_SAMESITE", "None")
