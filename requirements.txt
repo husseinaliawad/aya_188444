@@ -9,3 +9,5 @@ pandas~=2.2
 joblib~=1.4
 
 # Optional dev/test/visualization packages were moved to requirements-dev.txt
+gunicorn==22.0.0
+whitenoise==6.7.0
