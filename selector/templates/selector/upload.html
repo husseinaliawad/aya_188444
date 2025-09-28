@@ -1,0 +1,55 @@
+{% extends 'selector/base.html' %}
+{% block content %}
+<h2 class="mb-3">رفع البيانات وتشغيل الإعدادات</h2>
+<form method="post" enctype="multipart/form-data" class="row g-3">
+  {% csrf_token %}
+  <div class="col-12 col-md-6">
+    <label class="form-label">{{ form.file.label }}</label>
+    {{ form.file }}
+  </div>
+  <div class="col-12 col-md-6">
+    <label class="form-label">{{ form.target_column.label }}</label>
+    {{ form.target_column }}
+  </div>
+  <div class="col-12 col-md-4">
+    <label class="form-label">{{ form.task.label }}</label>
+    {{ form.task }}
+  </div>
+  <div class="col-12 col-md-4">
+    <label class="form-label">{{ form.population_size.label }}</label>
+    {{ form.population_size }}
+  </div>
+  <div class="col-12 col-md-4">
+    <label class="form-label">{{ form.generations.label }}</label>
+    {{ form.generations }}
+  </div>
+  <div class="col-12 col-md-4">
+    <label class="form-label">{{ form.crossover_rate.label }}</label>
+    {{ form.crossover_rate }}
+  </div>
+  <div class="col-12 col-md-4">
+    <label class="form-label">{{ form.mutation_rate.label }}</label>
+    {{ form.mutation_rate }}
+  </div>
+  <div class="col-12 col-md-4">
+    <label class="form-label">{{ form.elitism.label }}</label>
+    {{ form.elitism }}
+  </div>
+  <div class="col-12 col-md-4">
+    <label class="form-label">{{ form.max_features.label }}</label>
+    {{ form.max_features }}
+  </div>
+  <div class="col-12 col-md-4">
+    <label class="form-label">{{ form.scoring.label }}</label>
+    {{ form.scoring }}
+  </div>
+  <div class="col-12 col-md-4">
+    <label class="form-label">{{ form.cv.label }}</label>
+    {{ form.cv }}
+  </div>
+  <div class="col-12">
+    <button type="submit" class="btn btn-success">رفع الملف</button>
+    <a class="btn btn-secondary" href="/">إلغاء</a>
+  </div>
+</form>
+{% endblock %}

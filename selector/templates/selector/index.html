@@ -1,0 +1,40 @@
+{% extends 'selector/base.html' %}
+{% block content %}
+<div class="p-5 mb-4 bg-light rounded-3">
+  <div class="container-fluid py-5">
+    <h1 class="display-6 fw-bold">مشروع اختيار الميزات باستخدام الخوارزميات الجينية</h1>
+    <p class="col-md-10 fs-5 mt-3">
+      ارفع مجموعة البيانات (CSV)، اختر عمود الهدف، واضبط معاملات الخوارزمية الجينية.
+      سنقارن النتائج مع طرق اختيار ميزات تقليدية ونعرض تقريراً واضحاً.
+    </p>
+    <a class="btn btn-primary btn-lg" href="{% url 'selector:upload' %}">ابدأ الآن</a>
+  </div>
+</div>
+
+<section class="row g-3">
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">لماذا اختيار الميزات؟</h5>
+        <p class="card-text">تقليل التعقيد، تسريع التدريب، تحسين التعميم، وتسهيل تفسير النماذج.</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">الخوارزمية الجينية</h5>
+        <p class="card-text">نبحث عن مجموعة الميزات المثلى عبر مجتمع من الحلول وعمليات العبور والطفرة مع عقوبة على عدد الميزات.</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">المقارنة</h5>
+        <p class="card-text">نقارن أداء GA مع MI/ANOVA/Chi2 وRFE وSelectFromModel لإثبات الفاعلية.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

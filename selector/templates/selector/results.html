@@ -1,0 +1,118 @@
+{% extends 'selector/base.html' %}
+{% block content %}
+<h2 class="mb-3">نتائج اختيار الميزات</h2>
+{% if error %}
+  <div class="alert alert-warning">{{ error }}</div>
+{% else %}
+  {% if data %}
+  <div class="card mb-3">
+    <div class="card-body">
+      <h5 class="card-title">معلومات البيانات</h5>
+      <div class="row">
+        <div class="col-md-3"><strong>الملف:</strong> {{ data.dataset.file }}</div>
+        <div class="col-md-3"><strong>الهدف:</strong> {{ data.dataset.target_column }}</div>
+        <div class="col-md-3"><strong>عدد الصفوف:</strong> {{ data.dataset.n_rows }}</div>
+        <div class="col-md-3"><strong>عدد الميزات:</strong> {{ data.dataset.n_features_total }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-body">
+      <h5 class="card-title">نتائج الخوارزمية الجينية (GA)</h5>
+      <p><strong>المهمة:</strong> {{ data.task }} | <strong>المقياس:</strong> {{ data.scoring }} | <strong>CV:</strong> {{ data.cv }}</p>
+      <p><strong>عدد الميزات المختارة:</strong> {{ data.ga.n_selected }}</p>
+      <p><strong>الدرجة (بدون عقوبة):</strong> {{ data.ga.score_raw }}</p>
+      <p><strong>الدرجة (مع عقوبة):</strong> {{ data.ga.score_penalized }}</p>
+      <div>
+        <strong>الميزات المختارة:</strong>
+        <ul class="mt-2">
+          {% for f in data.ga.selected_features %}
+          <li>{{ f }}</li>
+          {% empty %}
+          <li>لا توجد ميزات مختارة.</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="mt-4">
+        <h6 class="mb-2">منحنى التقارب عبر الأجيال</h6>
+        <canvas id="gaChart" height="120"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="card mb-3">
+    <div class="card-body">
+      <h5 class="card-title">طرق المقارنة التقليدية</h5>
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>الطريقة</th>
+              <th>عدد الميزات</th>
+              <th>الدرجة</th>
+              <th>الميزات</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in data.baselines %}
+            <tr>
+              <td>{{ row.name }}</td>
+              <td>{{ row.n_features }}</td>
+              <td>{{ row.score }}</td>
+              <td>
+                <div style="max-height: 180px; overflow:auto;">
+                  <ul class="mb-0">
+                    {% for f in row.selected_features %}
+                    <li>{{ f }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4">لا توجد نتائج للمقارنة.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% else %}
+    <div class="alert alert-info">لا توجد بيانات نتائج متاحة.</div>
+  {% endif %}
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function() {
+  const dataObj = {{ data|safe|default:'null' }};
+  if (!dataObj || !dataObj.ga || !dataObj.ga.history) return;
+  const history = dataObj.ga.history;
+  const labels = history.map(h => h.generation);
+  const best = history.map(h => h.best_score);
+  const ctx = document.getElementById('gaChart');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'أفضل درجة لكل جيل',
+        data: best,
+        borderColor: 'rgba(25, 135, 84, 1)',
+        backgroundColor: 'rgba(25, 135, 84, 0.2)',
+        fill: true,
+        tension: 0.2,
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        x: { title: { display: true, text: 'الجيل' } },
+        y: { title: { display: true, text: 'الدرجة' }, beginAtZero: false }
+      }
+    }
+  });
+})();
+</script>
+{% endblock %}
